@@ -1,0 +1,10 @@
+.idea/
+.vscode/
+build/
+dist/
+__pycache__/
+*~*
+data/
+*.pth
+checkpoints/
+
