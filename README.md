@@ -8,6 +8,8 @@ There are two places where the module's name must be hardcoded, in addition to t
 
 The LIBTORCH_PATH definition is also found in the .env file. This variable should point to the absolute path of your unzipped libtorch library folder (you can of course still override this by specifying -DCMAKE_PREFIX_PATH=/path/to/libtorch at terminal).
 
+twine upload --skip-existing --verbose -p $token -u __token__ --repository "cuneb-chenn" --repository-url https://upload.pypi.org/legacy/ dist/*
+
 - TODO: put module into src directory
 - TODO: add test directory
 -
