@@ -10,7 +10,8 @@ The LIBTORCH_PATH definition is also found in the .env file. This variable shoul
 
 - TODO: put module into src directory
 - TODO: add test directory
-- 
+-
+- TODO: build manylinux wheel in docker
 - TODO: upload to pypi for easy online installation
 - TODO: --use-feature=in-tree-build
 - TODO: add attribution for custominstall setup classes (stackoverflow)

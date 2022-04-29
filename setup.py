@@ -3,19 +3,24 @@ import subprocess
 import shutil
 import sys
 
-from setuptools import Extension, setup
+from setuptools import Extension, setup, find_packages
 from setuptools.command.build_ext import build_ext
 from setuptools.command.install import install
 
-from dotenv import load_dotenv
+
 
 ## Hardcode project names here
 ## this path should point to the .env file in the module, relative to here (setup.py)
-load_dotenv(dotenv_path='./cuneb/.env', override=True)
+# from dotenv import load_dotenv
+# load_dotenv(dotenv_path='./cuneb/.env', override=True)
+#
+# PKG_NAME = os.getenv('PKG_NAME')
+# MOD_NAME = os.getenv('MOD_NAME')
+# OPS_NAME = os.getenv('OPS_NAME')
 
-PKG_NAME = os.getenv('PKG_NAME')
-MOD_NAME = os.getenv('MOD_NAME')
-OPS_NAME = os.getenv('OPS_NAME')
+PKG_NAME = 'cuneb-chenn'
+MOD_NAME = 'cuneb'
+OPS_NAME = 'cuneb_ops'
 
 
 
@@ -29,6 +34,11 @@ def check_for_cmake():
 
     return CMAKE_EXE
 
+def register_env_names():
+
+    from dotenv import load_dotenv
+    load_dotenv(dotenv_path='./'+MOD_NAME+'/.env', override=True)
+
 
 class CMakeExtension(Extension):
     """
@@ -38,7 +48,6 @@ class CMakeExtension(Extension):
     def __init__(self, name, sourcedir=''):
         Extension.__init__(self, name, sources=[])
         self.sourcedir = os.path.abspath(sourcedir)
-
 
 class CMakeBuildExt(build_ext):
     """
@@ -50,6 +59,8 @@ class CMakeBuildExt(build_ext):
 
         if isinstance(ext, CMakeExtension):
             CMAKE_EXE = check_for_cmake()
+            register_env_names()
+
             output_dir = os.path.join( os.path.abspath( os.path.dirname(self.get_ext_fullpath(ext.name)) ), ext.name)
 
             build_type = 'Debug' if self.debug else 'Release'
@@ -72,7 +83,6 @@ class CMakeBuildExt(build_ext):
             subprocess.check_call(['make', '-j'+str(os.cpu_count() // 2), ext.name],
                                   cwd=self.build_temp,
                                   env=env)
-
             print()
         else:
             super().build_extension(ext)
@@ -87,20 +97,28 @@ class CustomInstall(install):
 setup(
     name=PKG_NAME,
     version='0.0.1',
-    description='',
+    description='A simple package to wrap a pytorch CUDA/C++ extension',
     url='',
-    author='',
-    author_email='',
-    license='',
+    author='Chris Henn',
+    author_email='chenn@alum.mit.edu',
+    license='MIT',
 
     packages=[MOD_NAME],
+
     ext_modules=[CMakeExtension(MOD_NAME, sourcedir=MOD_NAME)],
     cmdclass={
         'install': CustomInstall,
         'build_ext': CMakeBuildExt,
     },
-    package_data={MOD_NAME : [".env"]},
+    package_data={MOD_NAME : [".env", "CMakeLists.txt", "*.cpp", "*.cu", "*.cuh"]},
 
+    setup_requires = [
+        "setuptools>=42",
+        "wheel",
+        "torch>=1.8.2",
+        "python-dotenv",
+        'importlib-metadata; python_version >= "3.9"'
+    ],
     classifiers=[
         'Development Status :: 1 - Planning',
         'Environment :: GPU :: NVIDIA CUDA',
