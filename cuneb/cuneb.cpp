@@ -8,6 +8,7 @@
 #define CHECK_CONTIGUOUS(x) AT_ASSERTM(x.is_contiguous(), #x " must be contiguous")
 #define CHECK_INPUT(x) CHECK_CUDA(x); CHECK_CONTIGUOUS(x)
 
+
 std::vector<torch::Tensor> call(
         torch::Tensor pts,
         torch::Tensor imgid,
@@ -48,9 +49,8 @@ std::vector<torch::Tensor> call_wrapper(
 }
 
 
-
-// Hardcode names here. MOD_NAME cannot be created programmatically.
-const char* MOD_NAME = "cuneb";
+// Hardcode project names here. MOD_NAME cannot be created programmatically.
+const static char* MOD_NAME = "cuneb";
 TORCH_LIBRARY(cuneb_ops, m)
 {
     m.def(MOD_NAME, call_wrapper);

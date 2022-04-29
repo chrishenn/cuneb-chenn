@@ -2,32 +2,21 @@ import os
 import subprocess
 import shutil
 import sys
-import atexit
 
 from setuptools import Extension, setup
 from setuptools.command.build_ext import build_ext
 from setuptools.command.install import install
 
+from dotenv import load_dotenv
 
 ## Hardcode project names here
-from dotenv import load_dotenv
+## this path should point to the .env file in the module, relative to here (setup.py)
 load_dotenv(dotenv_path='./cuneb/.env', override=True)
 
 PKG_NAME = os.getenv('PKG_NAME')
 MOD_NAME = os.getenv('MOD_NAME')
 OPS_NAME = os.getenv('OPS_NAME')
 
-
-def register_pkg_env_names():
-    os.environ['MOD_NAME'] = MOD_NAME
-    os.environ['PKG_NAME'] = PKG_NAME
-    os.environ['OPS_NAME'] = OPS_NAME
-
-
-def unregister_pkg_env_names():
-    os.unsetenv('MOD_NAME')
-    os.unsetenv('PKG_NAME')
-    os.unsetenv('OPS_NAME')
 
 
 def check_for_cmake():
@@ -40,15 +29,16 @@ def check_for_cmake():
 
     return CMAKE_EXE
 
+
 class CMakeExtension(Extension):
     """
     setuptools.Extension for cmake
     """
 
     def __init__(self, name, sourcedir=''):
-        CMAKE_EXE = check_for_cmake()
         Extension.__init__(self, name, sources=[])
         self.sourcedir = os.path.abspath(sourcedir)
+
 
 class CMakeBuildExt(build_ext):
     """
@@ -57,8 +47,6 @@ class CMakeBuildExt(build_ext):
     """
 
     def build_extension(self, ext):
-        # register_pkg_env_names()
-        # atexit.register(unregister_pkg_env_names)
 
         if isinstance(ext, CMakeExtension):
             CMAKE_EXE = check_for_cmake()
@@ -92,9 +80,6 @@ class CMakeBuildExt(build_ext):
 class CustomInstall(install):
 
     def run(self):
-        # register_pkg_env_names()
-        # atexit.register(unregister_pkg_env_names)
-
         install.run(self)
 
 

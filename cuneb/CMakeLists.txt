@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 
 # Create project
 SET(MOD_NAME $ENV{MOD_NAME})
-#SET(MOD_NAME cuneb)
 SET(PROJECT_NAME ${MOD_NAME})
 
 include(CMakePrintHelpers)
@@ -15,7 +14,7 @@ SET(CMAKE_CUDA_COMPILER nvcc)
 project(${PROJECT_NAME} LANGUAGES CUDA CXX)
 
 # LIBTORCH
-list(APPEND CMAKE_PREFIX_PATH "/home/chris/Documents/libtorch")
+list(APPEND CMAKE_PREFIX_PATH $ENV{LIBTORCH_PATH})
 FIND_PACKAGE( Torch REQUIRED )
 
 # Source files

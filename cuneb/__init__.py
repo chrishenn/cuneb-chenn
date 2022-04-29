@@ -1,18 +1,16 @@
-import torch
 import os
-import pkg_resources
+import torch
+from importlib.resources import files
 from dotenv import load_dotenv
 
-load_dotenv()
-
+load_dotenv(override=True)
 PKG_NAME = os.getenv('PKG_NAME')
 MOD_NAME = os.getenv('MOD_NAME')
 OPS_NAME = os.getenv('OPS_NAME')
 
-pkg = pkg_resources.working_set.by_key[PKG_NAME]
-so_path = os.path.join(pkg.location, MOD_NAME, 'lib' + MOD_NAME + '.so' )
+pkg = files(MOD_NAME)
+so_path = pkg.joinpath('lib'+MOD_NAME+'.so')
 torch.ops.load_library(so_path)
-
 
 def get(*args, **kwargs):
     func_string = 'torch.ops.' + OPS_NAME +'.' + MOD_NAME
