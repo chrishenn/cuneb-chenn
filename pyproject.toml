@@ -3,5 +3,6 @@ requires = [
     "setuptools>=42",
     "wheel",
     "torch",
+    "python-dotenv",
 ]
 build-backend = "setuptools.build_meta"

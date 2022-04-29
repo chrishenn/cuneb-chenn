@@ -2,15 +2,32 @@ import os
 import subprocess
 import shutil
 import sys
+import atexit
 
 from setuptools import Extension, setup
 from setuptools.command.build_ext import build_ext
+from setuptools.command.install import install
 
 
+## Hardcode project names here
+from dotenv import load_dotenv
+load_dotenv(dotenv_path='./cuneb/.env', override=True)
 
-MOD_NAME = 'frnn'
-PKG_NAME = MOD_NAME + '-chenn'
+PKG_NAME = os.getenv('PKG_NAME')
+MOD_NAME = os.getenv('MOD_NAME')
+OPS_NAME = os.getenv('OPS_NAME')
 
+
+def register_pkg_env_names():
+    os.environ['MOD_NAME'] = MOD_NAME
+    os.environ['PKG_NAME'] = PKG_NAME
+    os.environ['OPS_NAME'] = OPS_NAME
+
+
+def unregister_pkg_env_names():
+    os.unsetenv('MOD_NAME')
+    os.unsetenv('PKG_NAME')
+    os.unsetenv('OPS_NAME')
 
 
 def check_for_cmake():
@@ -40,8 +57,11 @@ class CMakeBuildExt(build_ext):
     """
 
     def build_extension(self, ext):
-        CMAKE_EXE = check_for_cmake()
+        # register_pkg_env_names()
+        # atexit.register(unregister_pkg_env_names)
+
         if isinstance(ext, CMakeExtension):
+            CMAKE_EXE = check_for_cmake()
             output_dir = os.path.join( os.path.abspath( os.path.dirname(self.get_ext_fullpath(ext.name)) ), ext.name)
 
             build_type = 'Debug' if self.debug else 'Release'
@@ -64,9 +84,19 @@ class CMakeBuildExt(build_ext):
             subprocess.check_call(['make', '-j'+str(os.cpu_count() // 2), ext.name],
                                   cwd=self.build_temp,
                                   env=env)
+
             print()
         else:
             super().build_extension(ext)
+
+class CustomInstall(install):
+
+    def run(self):
+        # register_pkg_env_names()
+        # atexit.register(unregister_pkg_env_names)
+
+        install.run(self)
+
 
 
 setup(
@@ -80,7 +110,11 @@ setup(
 
     packages=[MOD_NAME],
     ext_modules=[CMakeExtension(MOD_NAME, sourcedir=MOD_NAME)],
-    cmdclass={'build_ext': CMakeBuildExt},
+    cmdclass={
+        'install': CustomInstall,
+        'build_ext': CMakeBuildExt,
+    },
+    package_data={MOD_NAME : [".env"]},
 
     classifiers=[
         'Development Status :: 1 - Planning',
@@ -90,6 +124,7 @@ setup(
         'Programming Language :: Python :: Implementation :: CPython',
     ],
 )
+
 
 
 

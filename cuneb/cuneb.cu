@@ -134,8 +134,8 @@ __global__ void build_lookup(
 
 
 /////////////////////////////////////////////////////
-// cpu entry point for frnn python extension.
-__host__ std::vector<torch::Tensor> frnn_ts_call(
+// cpu entry point for cuneb python extension.
+__host__ std::vector<torch::Tensor> call(
     torch::Tensor pts,
     torch::Tensor imgid,
 

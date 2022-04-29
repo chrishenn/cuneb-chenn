@@ -1,10 +1,14 @@
 #include <torch/script.h>
 
 #include <vector>
-#include <iostream>
 #include <string>
 
-std::vector<torch::Tensor> frnn_ts_call(
+
+#define CHECK_CUDA(x) AT_ASSERTM(x.is_cuda(), #x " must be a CUDA tensor")
+#define CHECK_CONTIGUOUS(x) AT_ASSERTM(x.is_contiguous(), #x " must be contiguous")
+#define CHECK_INPUT(x) CHECK_CUDA(x); CHECK_CONTIGUOUS(x)
+
+std::vector<torch::Tensor> call(
         torch::Tensor pts,
         torch::Tensor imgid,
 
@@ -12,13 +16,10 @@ std::vector<torch::Tensor> frnn_ts_call(
         torch::Tensor scale_radius,
 
         torch::Tensor batch_size
-    );
+);
 
-#define CHECK_CUDA(x) AT_ASSERTM(x.is_cuda(), #x " must be a CUDA tensor")
-#define CHECK_CONTIGUOUS(x) AT_ASSERTM(x.is_contiguous(), #x " must be contiguous")
-#define CHECK_INPUT(x) CHECK_CUDA(x); CHECK_CONTIGUOUS(x)
 
-std::vector<torch::Tensor> frnn_ts(
+std::vector<torch::Tensor> call_wrapper(
         torch::Tensor pts,
         torch::Tensor imgid,
 
@@ -35,7 +36,7 @@ std::vector<torch::Tensor> frnn_ts(
     CHECK_INPUT(lin_radius);
     CHECK_INPUT(scale_radius);
 
-    return frnn_ts_call(
+    return call(
         pts,
         imgid,
 
@@ -46,6 +47,11 @@ std::vector<torch::Tensor> frnn_ts(
     );
 }
 
-TORCH_LIBRARY(my_ops, m) {
-    m.def("frnn_ts_kernel", frnn_ts);
+
+
+// Hardcode names here. MOD_NAME cannot be created programmatically.
+const char* MOD_NAME = "cuneb";
+TORCH_LIBRARY(cuneb_ops, m)
+{
+    m.def(MOD_NAME, call_wrapper);
 }
