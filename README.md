@@ -28,18 +28,18 @@ To call the extension, we can then
 File structure:
 
     pkg 
-        |- setup.py
-        |- src 
-        |   |- module
-        |   |   - .env
-        |   |   - __init__.py
-        |   |   - CMakeLists.txt
-        |   |   - file.cpp
-        |   |   - file.h
-        |   |   - file.cu
-        |   |   - file.cuh
-        |- test
-            - test_module.py
+    |-  setup.py
+    |-  src 
+    |   |-  module
+    |   |   |-   .env
+    |   |   |-   __init__.py
+    |   |   |-   CMakeLists.txt
+    |   |   |-   file.cpp
+    |   |   |-   file.h
+    |   |   |-   file.cu
+    |   |   |-   file.cuh
+    |-  test
+    |   |-  test_module.py
 
 In the module/.env file, there are environment variable definitions (PKG_NAME MOD_NAME MOD_PATH OPS_NAME LIBTORCH_PATH). PKG_NAME, MOD_NAME, and MOD_PATH correspond to package folder name, module folder name, and path to the module folder from setup.py. OPS_NAME defines the torch.ops.OPS_NAME that the extension must be bound to. LIBTORCH_PATH is the absolute path to our system's libtorch folder.
 
