@@ -48,9 +48,13 @@ std::vector<torch::Tensor> call_wrapper(
     );
 }
 
+//////
+// Hardcode project names here. MOD_NAME and cuneb_ops cannot be created programmatically (cannot parse from file)
 
-// Hardcode project names here. MOD_NAME cannot be created programmatically.
+// MOD_NAME in the .env file
 const static char* MOD_NAME = "cuneb";
+
+// this is OPS_NAME in the .env file
 TORCH_LIBRARY(cuneb_ops, m)
 {
     m.def(MOD_NAME, call_wrapper);

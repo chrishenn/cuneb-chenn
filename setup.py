@@ -10,17 +10,14 @@ from setuptools.command.install import install
 
 
 ## Hardcode project names here
-## this path should point to the .env file in the module, relative to here (setup.py)
-# from dotenv import load_dotenv
-# load_dotenv(dotenv_path='./cuneb/.env', override=True)
-#
-# PKG_NAME = os.getenv('PKG_NAME')
-# MOD_NAME = os.getenv('MOD_NAME')
-# OPS_NAME = os.getenv('OPS_NAME')
-
+## Make sure they match the names in the pkg/module/.env file
+#### We can't load these names from the .env file, because importing dotenv here creates a circular import when building
+#### a wheel. `Build` installs the modules in setup_requires only after parsing this setup.py file.
 PKG_NAME = 'cuneb-chenn'
 MOD_NAME = 'cuneb'
+MOD_PATH = 'src/cuneb/'
 OPS_NAME = 'cuneb_ops'
+LIBTORCH_PATH = '/home/chris/Documents/libtorch'
 
 
 
@@ -37,7 +34,7 @@ def check_for_cmake():
 def register_env_names():
 
     from dotenv import load_dotenv
-    load_dotenv(dotenv_path='./'+MOD_NAME+'/.env', override=True)
+    load_dotenv(dotenv_path=MOD_PATH + '/.env', override=True)
 
 
 class CMakeExtension(Extension):
@@ -98,19 +95,20 @@ setup(
     name=PKG_NAME,
     version='0.0.1',
     description='A simple package to wrap a pytorch CUDA/C++ extension',
-    url='',
+    url='https://github.com/chrishenn/',
     author='Chris Henn',
     author_email='chenn@alum.mit.edu',
     license='MIT',
 
     packages=[MOD_NAME],
+    package_dir = {MOD_NAME: MOD_PATH},
 
-    ext_modules=[CMakeExtension(MOD_NAME, sourcedir=MOD_NAME)],
+    ext_modules=[CMakeExtension(MOD_NAME, sourcedir=MOD_PATH)],
     cmdclass={
         'install': CustomInstall,
         'build_ext': CMakeBuildExt,
     },
-    package_data={MOD_NAME : [".env", "CMakeLists.txt", "*.cpp", "*.cu", "*.cuh"]},
+    package_data={MOD_NAME : [".env", "CMakeLists.txt", "*.cpp", "*.cu", "*.cuh", "*.h", "*.so"]},
 
     setup_requires = [
         "setuptools>=42",
