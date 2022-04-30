@@ -96,7 +96,7 @@ setup(
     name=PKG_NAME,
     version='0.0.2',
     description='A simple package to wrap a pytorch CUDA/C++ extension',
-    url='https://github.com/chrishenn/',
+    url='https://github.com/chrishenn/cuneb-chenn',
     author='Chris Henn',
     author_email='chenn@alum.mit.edu',
     license='MIT',

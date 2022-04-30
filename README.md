@@ -1,7 +1,7 @@
 
 
 <div align="center">
-    <img src="doc/images/package.jpeg" height="200" >
+    <img src="https://raw.githubusercontent.com/chrishenn/cuneb-chenn/main/doc/images/package.jpeg?raw=True" height="200" >
 </div>
 
 <h1 align="center" style="margin-top: 0px;">Example Pytorch-CUDA-CMake Library Pip Package</h1>
