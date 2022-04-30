@@ -94,7 +94,7 @@ def get_readme():
 
 setup(
     name=PKG_NAME,
-    version='0.0.2',
+    version='0.0.3',
     description='A simple package to wrap a pytorch CUDA/C++ extension',
     url='https://github.com/chrishenn/cuneb-chenn',
     author='Chris Henn',
