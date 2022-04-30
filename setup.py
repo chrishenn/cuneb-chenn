@@ -3,21 +3,19 @@ import subprocess
 import shutil
 import sys
 
-from setuptools import Extension, setup, find_packages
+from setuptools import Extension, setup
 from setuptools.command.build_ext import build_ext
 from setuptools.command.install import install
 
 
 
 ## Hardcode project names here
-## Make sure they match the names in the pkg/module/.env file
-#### We can't load these names from the .env file, because importing dotenv here creates a circular import when building
-#### a wheel. `Build` installs the modules in setup_requires only after parsing this setup.py file.
+# Make sure they match the names in the pkg/module/.env file
+# We can't load these names from the .env file, - `Build` installs the modules in
+# setup_requires only after parsing this setup.py file.
 PKG_NAME = 'cuneb-chenn'
 MOD_NAME = 'cuneb'
 MOD_PATH = 'src/cuneb/'
-OPS_NAME = 'cuneb_ops'
-LIBTORCH_PATH = '/home/chris/Documents/libtorch'
 
 
 
@@ -90,15 +88,20 @@ class CustomInstall(install):
         install.run(self)
 
 
+def get_readme():
+    with open('README.md') as f:
+        return f.read()
 
 setup(
     name=PKG_NAME,
-    version='0.0.1',
+    version='0.0.2',
     description='A simple package to wrap a pytorch CUDA/C++ extension',
     url='https://github.com/chrishenn/',
     author='Chris Henn',
     author_email='chenn@alum.mit.edu',
     license='MIT',
+    long_description=get_readme(),
+    long_description_content_type="text/markdown",
 
     packages=[MOD_NAME],
     package_dir = {MOD_NAME: MOD_PATH},
@@ -115,7 +118,12 @@ setup(
         "wheel",
         "torch>=1.8.2",
         "python-dotenv",
-        'importlib-metadata; python_version >= "3.9"'
+        'importlib-metadata; python_version >= "3.6"'
+    ],
+    install_requires = [
+        "torch>=1.8.2",
+        "python-dotenv",
+        'importlib-metadata; python_version >= "3.6"'
     ],
     classifiers=[
         'Development Status :: 1 - Planning',

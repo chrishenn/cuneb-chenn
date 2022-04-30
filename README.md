@@ -8,22 +8,49 @@
 
 &emsp;
 
-An example to install and expose a cuda/c++ pytorch-torchlib extension as its own pip package. Provides versioning for cuda libraries via packaging.
+An example to install and expose a cuda/c++ pytorch-torchlib extension to python, in its own pip package. Provides versioning for cuda libraries via pip packaging; downloading by package name; specifying package versions; installing python dependencies; building the package from source on the target machine.
 
 This structure does fully support including the packaged CUDA/C++ torch extension into a torchscript-managed module or operator. The benefits of compiling a python model into torchscript are many - see the tutorial for a nice list [(extending torchscript tutorial)](https://pytorch.org/tutorials/advanced/torch_script_custom_ops.html) - but my main interest is in the performance and scalability offered by serializing a model to disk (which can be loaded into multiple processes), and running a model in a python-free environment.
 
 We choose CMake compilation for our cuda/c++ library, rather than setuptools. CMake allows for fewer headaches in the extension's project structure - finding includes, headers, and source files arbitrarily - and generally is worth the effort of including another build tool. As the [extending torchscript tutorial](https://pytorch.org/tutorials/advanced/torch_script_custom_ops.html) casually mentions, using setuptools to build a plain shared library can be "slightly quirky".
 
-To install, open a shell in the package folder. Run 
+CMake functionality in setup.py copied from [raydouglass/cmake_setuptools](https://github.com/raydouglass/cmake_setuptools).
 
-    pip install .
 
-To call the extension, we can then 
+## Using This Example
+
+Installing the package from source, at install time we must specify the path to our appropriate version of the libtorch library on our machine's filesystem.
+
+To install the package from a local folder, open a shell in the package folder; run: 
+
+    LIBTORCH_PATH="/home/chris/Documents/libtorch" pip install .
+
+To call the extension from an environment with this package installed, we can then: 
 
     import modulename
     output = modulename.get(*args)
 
-### How to adapt this example
+To build a package distribution, run:
+
+    LIBTORCH_PATH="/home/chris/Documents/libtorch" python -m build
+
+Wheels with 'linux-arch' tags cannot be uploaded to pypa - see 'Manylinux' section below. 
+
+If we remove the linux-tagged .whl from the pkg/dist/, we can then upload the package to pypi. Only installation from source will be supported, via the package-version.tar.gz file built by 'build'. Pip will download and unzip the package, enforce dependencies, provide versioning, and install from source - capturing the features I had in mind with this example.
+
+To upload the dist/ directory, set `token=our-secret-pypi-api-token` in our shell environment. Then:
+
+    twine upload --skip-existing --verbose -p $token -u __token__ --repository "cuneb-chenn" --repository-url https://upload.pypi.org/legacy/ dist/*
+
+Then to install in a fresh environment, pip will download the package source from pypi and build a local wheel to install:
+
+    LIBTORCH_PATH="/home/chris/Documents/libtorch" pip install cuneb-chenn
+
+
+
+
+
+## Adapting This Example
 
 File structure:
 
@@ -49,7 +76,11 @@ This example includes dependencies on libtorch, pytorch, cuda-11, cudnn-8.4.0.27
 
 
 
+
+
 ## ManyLinux
+
+Wheels built on manylinux images and repaired with wheel-repair can then be uploaded to pypi. However, manylinux wheels for this package are much too large to upload because of its dependencies (seemingly CUDA-11 is the main offender here).
 
 Run `sudo sh run-manylinux.sh` to start building manylinux wheels.
 
@@ -58,25 +89,21 @@ Run `sudo sh run-manylinux.sh` to start building manylinux wheels.
 `build-wheels.sh` is run inside the container to build and format the wheels.
 
 ### Notes
-Use a machine with more than 64 GB of ram (maybe more like 256 GB) - push this to the build server (super easy CI integration with travis - see [the manylinux github tutorial](https://github.com/pypa/python-manylinux-demo) for info). I copied a starting point for the two shell scripts from the same.   
+Use a machine with more than 64 GB of ram (maybe more like 256 GB) - push this to the build server (super easy CI integration with travis - see [the manylinux github tutorial](https://github.com/pypa/python-manylinux-demo) for info). I copied a starting point for the two manylinux shell scripts from the same.   
 
-Well this is awkward. This simple project build with Cuda 11 and cudnn dependencies results in a .whl file that is too large for upload to pypi. This appears to be a problem that they encounter more and more often, specifically calling out Cuda-11 (and later) dependencies as inflating the .whl size [(see here)](https://discuss.python.org/t/what-to-do-about-gpus-and-the-built-distributions-that-support-them/7125). As mentioned in that discussion, Pytorch has to host and distribute their own python packages because the infrastructure is just too expensive for Pypa. 
+The wheel-size problem appears to crop up frequently. Pypa folks specifically call out Cuda-11 (and later) dependencies as inflating the .whl size [(see here)](https://discuss.python.org/t/what-to-do-about-gpus-and-the-built-distributions-that-support-them/7125). As mentioned in that discussion, Pytorch has had to host and distribute their own python packages because the infrastructure to store and deliver them is too expensive for Pypa. 
 
 This packaging exercise is still worthwhile for learning about CI. In particular, the cpu and memory requirements are quite high - just to build this simple little package! Suitable for an internal build and distribution server only. 
 
 
  ## TODO
 
-- sudo sh run-manylinux.sh
-- python -m build
-- move the files you want to distribute into ./dist/
-- twine upload --skip-existing --verbose -p $token -u __token__ --repository "cuneb-chenn" --repository-url https://upload.pypi.org/legacy/ dist/*
-
-
-- TODO: --use-feature=in-tree-build (will be default behavior in future. See if it breaks the package)
-- TODO: add attribution for custominstall setup classes (stackoverflow)
 - TODO: add tests
+- TODO: --use-feature=in-tree-build (will be default behavior in future. See if it breaks the package build)
+
+
 - TODO: build-wheels.sh ends with an EOF error, but runs successfully to completion. Would be nice to finish with a success message rather than an error.
 - TODO: local cudnn install in build-wheel.sh
 - TODO: figure out what those -pypy-something binaries are in build-wheels.h
+- TODO: build docker manylinux images with latest manylinux version, cuda, and cudnn built in
 

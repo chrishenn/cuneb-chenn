@@ -54,7 +54,7 @@ std::vector<torch::Tensor> call_wrapper(
 // MOD_NAME in the .env file
 const static char* MOD_NAME = "cuneb";
 
-// this is OPS_NAME in the .env file
+// OPS_NAME in the .env file
 TORCH_LIBRARY(cuneb_ops, m)
 {
     m.def(MOD_NAME, call_wrapper);
