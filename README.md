@@ -32,13 +32,17 @@ To call the extension from an environment with this package installed, we can th
     import modulename
     output = modulename.get(*args)
 
-To build a package distribution, run:
+To build a package distribution, including a source and a system-specific wheel, run:
 
     LIBTORCH_PATH="/home/chris/Documents/libtorch" python -m build
 
 Wheels with 'linux-arch' tags cannot be uploaded to pypa - see 'Manylinux' section below. 
 
 If we remove the linux-tagged .whl from the pkg/dist/, we can then upload the package to pypi. Only installation from source will be supported, via the package-version.tar.gz file built by 'build'. Pip will download and unzip the package, enforce dependencies, provide versioning, and install from source.
+
+Alternatively, we can build only the 'source' distribution:
+
+    LIBTORCH_PATH="/home/chris/Documents/libtorch" python setup.py sdist
 
 To upload the dist/ directory, set `token=our-secret-pypi-api-token` in our shell environment. Then:
 

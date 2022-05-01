@@ -6,7 +6,10 @@ import sys
 from setuptools import Extension, setup
 from setuptools.command.build_ext import build_ext
 from setuptools.command.install import install
+from setuptools.command.develop import develop
 
+from distutils.cmd import Command
+from distutils.file_util import copy_file
 
 
 ## Hardcode project names here
@@ -18,6 +21,10 @@ MOD_NAME = 'cuneb'
 MOD_PATH = 'src/cuneb/'
 
 
+
+def get_readme():
+    with open('README.md') as f:
+        return f.read()
 
 def check_for_cmake():
 
@@ -57,6 +64,7 @@ class CMakeBuildExt(build_ext):
             register_env_names()
 
             output_dir = os.path.join( os.path.abspath( os.path.dirname(self.get_ext_fullpath(ext.name)) ), ext.name)
+            # output_dir = os.path.abspath( os.path.dirname(self.get_ext_fullpath(ext.name)) )
 
             build_type = 'Debug' if self.debug else 'Release'
             cmake_args = [CMAKE_EXE,
@@ -82,19 +90,36 @@ class CMakeBuildExt(build_ext):
         else:
             super().build_extension(ext)
 
+
+    def get_ext_filename(self, fullname):
+        return "lib"+fullname+".so"
+
+    def copy_extensions_to_source(self):
+
+        for ext in self.extensions:
+            fullname = self.get_ext_fullname(ext.name)
+            filename = self.get_ext_filename(fullname)
+
+            output_dir = os.path.join(os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name))), MOD_PATH)
+            dest_filename = os.path.join(output_dir, os.path.basename(filename))
+            src_filename = os.path.join(self.build_lib, fullname, filename)
+
+            copy_file(
+                src_filename, dest_filename, verbose=self.verbose,
+                dry_run=self.dry_run
+            )
+
 class CustomInstall(install):
 
     def run(self):
         install.run(self)
 
 
-def get_readme():
-    with open('README.md') as f:
-        return f.read()
+
 
 setup(
     name=PKG_NAME,
-    version='0.0.3',
+    version='0.0.4',
     description='A simple package to wrap a pytorch CUDA/C++ extension',
     url='https://github.com/chrishenn/cuneb-chenn',
     author='Chris Henn',
@@ -111,20 +136,22 @@ setup(
         'install': CustomInstall,
         'build_ext': CMakeBuildExt,
     },
-    package_data={MOD_NAME : [".env", "CMakeLists.txt", "*.cpp", "*.cu", "*.cuh", "*.h", "*.so"]},
+    package_data={MOD_NAME : [".env", "CMakeLists.txt", "*.cpp", "*.cu", "*.cuh", "*.h"]},
 
     setup_requires = [
         "setuptools>=42",
         "wheel",
         "torch>=1.8.2",
         "python-dotenv",
-        'importlib-metadata; python_version >= "3.6"'
+        'importlib-metadata; python_version >= "3.9"'
     ],
     install_requires = [
         "torch>=1.8.2",
         "python-dotenv",
-        'importlib-metadata; python_version >= "3.6"'
+        'importlib-metadata; python_version >= "3.9"',
+        "nose",
     ],
+
     classifiers=[
         'Development Status :: 1 - Planning',
         'Environment :: GPU :: NVIDIA CUDA',
