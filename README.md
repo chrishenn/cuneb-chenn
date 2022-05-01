@@ -32,6 +32,11 @@ To call the extension from an environment with this package installed, we can th
     import modulename
     output = modulename.get(*args)
 
+To run the included tests from a local folder, we can do:
+
+    LIBTORCH_PATH="/home/chris/Documents/libtorch" pip install -e .
+    nosetests
+
 To build a package distribution, including a source and a system-specific wheel, run:
 
     LIBTORCH_PATH="/home/chris/Documents/libtorch" python -m build
