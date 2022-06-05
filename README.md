@@ -23,9 +23,15 @@ CMake functionality in setup.py adapted from [raydouglass/cmake_setuptools](http
 
 Installing the package from source, at install time we must specify the path to our appropriate version of the libtorch library on our machine's filesystem. This example includes dependencies on libtorch-1.8.2, pytorch-1.8.2, cuda-11, cudnn-8.xxx, and gcc~9.
 
+Make sure to set your Torch_DIR in your environment, specifying your local libtorch folder (here, with version 1.8.2). For example, in ~/.bashrc:
+
+    export Torch_DIR="/home/chris/Documents/libtorch"
+
+Otherwise, we can prefix each command below with Torch_DIR="path-to-libtorch".
+
 To install the package from a local folder, open a shell in the package folder; run: 
 
-    LIBTORCH_PATH="/home/chris/Documents/libtorch" pip install .
+    pip install .
 
 To call the extension from an environment with this package installed, we can then: 
 
@@ -34,12 +40,12 @@ To call the extension from an environment with this package installed, we can th
 
 To run the included tests from a local folder, we can do:
 
-    LIBTORCH_PATH="/home/chris/Documents/libtorch" pip install -e .
+    pip install -e .
     nosetests
 
 To build a package distribution, including a source and a system-specific wheel, run:
 
-    LIBTORCH_PATH="/home/chris/Documents/libtorch" python -m build
+    python -m build
 
 Wheels with 'linux-arch' tags cannot be uploaded to pypa - see 'Manylinux' section below. 
 
@@ -47,7 +53,7 @@ If we remove the linux-tagged .whl from the pkg/dist/, we can then upload the pa
 
 Alternatively, we can build only the 'source' distribution:
 
-    LIBTORCH_PATH="/home/chris/Documents/libtorch" python setup.py sdist
+    python setup.py sdist
 
 To upload the dist/ directory, set `token=our-secret-pypi-api-token` in our shell environment. Then:
 
@@ -55,7 +61,7 @@ To upload the dist/ directory, set `token=our-secret-pypi-api-token` in our shel
 
 Then to install in a fresh environment, pip will download the package source from pypi and build a local wheel to install:
 
-    LIBTORCH_PATH="/home/chris/Documents/libtorch" pip install cuneb-chenn
+    pip install cuneb-chenn
 
 
 
